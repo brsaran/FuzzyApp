@@ -1,0 +1,320 @@
+#! /usr/bin/perl
+######## FuzzyAPP #####################
+#        Developed by SARAVANAN VIJAYAKUMAR
+#         Centre for Bioinformatics, Pondicherry University
+#         brsaran@gmail.com
+#         Date: 14-2-2013
+#
+
+######Required Modules
+
+use List::Util qw[max];
+use CGI qw(:standard);
+use CGI::Carp qw(fatalsToBrowser);
+use MIME::Lite; #To be installed
+use WWW::Mechanize;
+#########
+
+
+######### FASTA Parsing from CGI script
+print "Enter File contating protein in FASTA format:";
+chomp($infil = <STDIN>);
+	open (FIL,"$infil");
+	@new_tem = <FIL>;
+	$Rawseq[0] = join("",@new_tem);
+	if($Rawseq[0] eq ""){
+		print "File empty ! or File not found !";
+		exit;
+	}
+
+
+
+$Rawseq[0]=~s/ //g;
+@Seq_hold1 = split('\n',$Rawseq[0]);
+#shift @Seq_hold1;
+if(($Rawseq[0]=~s/\>/\>/g) > 10){
+         $Seq_OK = '1';
+}elsif((($Rawseq[0]=~s/\>/\>/g) == 0)&& (($Rawseq[0]=~s/UI\:/UI\:/g) == 0)){
+        $Seq_OK = '1';
+}elsif(($Rawseq[0]=~s/UI\:/UI\:/g) > 10){
+        $Seq_OK = '1';
+}elsif(($Rawseq[0]=~m/UI\:/g) && ($Rawseq[0]=~m/\>/g)){
+        $Seq_OK = '1';
+}else{
+#Fasta Parsing
+        $Seq_OK = 10;
+        my $i;
+        my $j=0;
+        my $webmachine;
+        ################
+
+        if(@Seq_hold1[0]=~m/^UI\:/g){
+            for($i=0;$i<@Seq_hold1;$i++){
+                 $Seq_hold1[$i]=~s/UI\://g;
+                 $Seq_hold1[$i]=~s/\s//g;
+                 $webmachine = WWW::Mechanize->new();
+                 $url = "http://www.uniprot.org/uniprot/".$Seq_hold1[$i].'.'."fasta";
+                 $webmachine->get($url);
+                 $Seq_Junk.=$webmachine->content();
+                 #print $Seq_hold1[$i];
+            }
+        @Seq_hold1 = split('\n',$Seq_Junk);
+        }
+        $i=0;
+
+        #################
+        foreach(@Seq_hold1){
+              if(substr(@Seq_hold1[$j],0,1) eq ">"){
+                $i=$i+1;
+                @Seq_submit1[$i]= @Seq_hold1[$j]."\n";
+                @FASTA_Header[$i]=substr(@Seq_hold1[$j],1,10);
+                #@FASTA_Header[$i]=~m/\|(.*)\|/g;
+                #@FASTA_Header[$i]= $1;
+                $j++;
+
+             }
+             else{
+                  @Rawseq1[$i].= @Seq_hold1[$j];
+                  $Rawseq1[$i]=~s/\s//g;
+                  print @Seq_hold[$j];
+                  @Seq_submit1[$i].= @Seq_hold1[$j];
+                  $j++;
+                  $k++;
+
+             }
+        }
+}
+########FASTA Parsing ENDS!!!!
+$i=$j=$k=0;
+
+###############UNIPROT PARSING
+
+#########UNIPROT ENDS
+
+########
+
+if ($Seq_OK != 1){
+###Job processing
+#my $Job_Id_path = '';
+#my $Job_FILE = &generate_random_string(8).&generate_random_string(8);
+#my $Job_Id = $Job_Id_path.$Job_FILE.'.fuzz';
+print "Enter Filename for output to be saved:";
+chomp($Job_Id = <STDIN>);
+$Job_Id.='.html';
+
+#my $Job_content = "<html><h3>Processing....Please wait</h3><br>If the page did not refresh automatically ". "<a href = '/temp/".$Job_FILE."\.fuzz'> click here</a><br>Your job results will be available in the server,  your Job ID is <b>".$Job_FILE."</b><br><br><b>Note: All the job results will be cleaned by the server every day at 00:00:00 IST";
+#open(TTT,">$Job_Id");
+#print TTT $Job_content;
+#close(TTT);
+#print $Job_content;
+
+for(my $i=1;$i<@Rawseq1;$i++){ #delete only this line
+#####
+        $Global_seq = $Rawseq1[$i];
+
+        ###Machine Learning Module
+        my $resu = `perl psm_aller.pl $Global_seq`;
+        my @Res = split('\n',$resu);
+        my $ML_Result_Class = substr($Res[137],27,1);
+        my $ML_Result_Weight = substr($Res[137],34,4);
+
+        #For Fuzzy
+        if($ML_Result_Class eq 'N'){
+                $FuzzM = 1;
+                $ML_Result_Class_R = "Non-Allergen";
+        }else{
+                $FuzzM = 0;
+                $ML_Result_Class_R = "Allergen";
+        }
+        my $ML_Result = $ML_Result_Class_R." ($ML_Result_Weight)";
+        ###End!
+
+        ####FASTA36 Module
+        $F36_Result = `perl fasta.pl $Global_seq`;
+	$tBlas = $F36_Result;
+        $tBlas=~s/\n/\t/g;
+        @ArtBlas=split('\t',$tBlas);
+
+        $ArtBlas[0]=~m/\:(.*)/g;
+        if($1 eq ''|| $1 eq 'NSH'){
+                $FuzzGADB = 0;
+        }else{
+                $FuzzGADB = $1;
+                $FuzzGADB = $FuzzGADB/100;
+        }
+        $ArtBlas[5]=~m/\:(.*)/g;
+        if($1 eq ''|| $1 eq 'NSH'){
+                $FuzzWHO = 0;
+        }else{
+                $FuzzWHO = $1;
+                $FuzzWHO = $FuzzWHO/100;
+        }
+        $ArtBlas[7]=~m/\:(.*)/g;
+
+        if($1 eq '' || $1 eq 'NSH'){
+                $FuzzGHNA = 0;
+        }else{
+                $FuzzGHNA = $1;
+                $FuzzGHNA = $FuzzGHNA/100;
+        }
+
+        @F36_arr = split('\n',$F36_Result);
+        @GAS_F36 = split('\t',$F36_arr[0]);
+        @FWS_F36 = split('\t',$F36_arr[1]);
+        @GAPNS_F36 = split('\t',$F36_arr[2]);
+
+        if($GAS_F36[0] eq "Result:NSH"){
+            $GAS_FIN = "query protein has <b>no significant similarity</b> with the known allergens; ";
+        }else{
+            $GAS_F36[0]=~s/Global Identity\://g;
+            $GAS_F36[1]=~s/Global_Evalue\://g;
+            $GAS_F36[2]=~m/Subject\:(.*)/g;
+            $GAS_temp = $1;
+            $GAS_temp=~s/\s//g;
+            if($GAS_temp=~m/^[0-9]/g){
+                $GAS_temp=~s/[a-zA-Z]*//g;
+                $GAS_temp=~s/\W//g;
+                $GAS_temp = '<a href = "http://www.ncbi.nlm.nih.gov/protein/'.$GAS_temp.'">';
+            }else{
+                $GAS_temp = '<a href = "http://www.uniprot.org/uniprot/'.$GAS_temp.'">';
+            }
+
+            $GAS_FIN = "the global similarity of query protein against known allergen (<b> $GAS_temp $GAS_F36[2] </a></b>) has <b> $GAS_F36[0] % global identity </b> with an e-value of <b> $GAS_F36[1] </b>; ";
+        }
+
+        if($GAPNS_F36[0] eq "Result:NSH"){
+            $GAPNS_FIN = "query protein has <b>no significant similarity</b> with allergen-like non-allergens; ";
+        }else{
+            $GAPNS_F36[0]=~s/Global Identity\://g;
+            $GAPNS_F36[1]=~s/Global_Evalue\://g;
+            $GAPNS_F36[2]=~m/Subject\:(.*)/g;
+            $GAPNS_temp = $1;
+            $GAPNS_temp=~s/\s//g;
+            if($GAPNS_temp=~m/^[0-9]/g){
+                $GAPNS_temp=~s/[a-zA-Z]*//g;
+                $GAPNS_temp=~s/\W//g;
+                $GAPNS_temp = '<a href = "http://www.ncbi.nlm.nih.gov/protein/'.$GAPNS_temp.'">';
+            }else{
+                $GAPNS_temp = '<a href = "http://www.uniprot.org/uniprot/'.$GAPNS_temp.'">';
+            }
+            $GAPNS_FIN = "the global similarity of query protein against allergen-like non-allergen (<b> $GAPNS_temp $GAPNS_F36[2] </a></b>) has <b> $GAPNS_F36[0] % global identity</b> with an e-value of <b> $GAPNS_F36[1] </b>; ";
+        }
+
+        if(($FWS_F36[0] eq "Result:NSH") || ($FWS_F36[0]!~m/\-/g)){
+            $FWS_FIN = "query protein has <b>no significant similarity</b> with 80 window search; ";
+        }else{
+            $FWS_F36[2]=~s/Identity\://g;
+            $FWS_F36[3]=~s/E\-Value\://g;
+            $FWS_F36[1]=~m/Subject\:(.*)/g;
+            $FWS_temp = $1;
+            $FWS_temp=~s/\s//g;
+            if($FWS_temp=~m/^[0-9]/g){
+                $FWS_temp=~s/[a-zA-Z]*//g;
+                $FWS_temp=~s/\W//g;
+                $FWS_temp = '<a href = "http://www.ncbi.nlm.nih.gov/protein/'.$FWS_temp.'">';
+            }else{
+                $FWS_temp = '<a href = "http://www.uniprot.org/uniprot/'.$FWS_temp.'">';
+            }
+
+            $FWS_FIN = "the sequence similarity of 80 window query protein (<b> $FWS_F36[0] </b>) against known allergen (<b> $FWS_temp $FWS_F36[1] </a></b>) has <b> $FWS_F36[2] % identity </b> with an <b>e-value of $FWS_F36[3] </b>; ";
+        }
+
+
+        #####MOTIF MODULE
+
+        my $MAST_Result = `perl meme.pl $Global_seq`;
+        my @MAST_mast = split("\n",$MAST_Result);
+        ####Unnecessary
+        #$MAST_mast[2]=~s/^\s\s//g;
+        #$MAST_mast[2]=~s/\s\s/\<\/td\>\<td\>/g;
+        $MAST_mast[2]=~s/LENGTH/Length/g;
+        ####Un ends
+        $MAST_Result =~m/E\-VALUE \=(.*)/g;
+        $ZMEME = $1;
+        $ZMEME=~s/\s//;
+        if($ZMEME=~m/e\-/g){
+                $MAST_mast[2]=~s/COMBINED.*=/with <b> significant e-value of /g;
+                $FuzzMEME = 0;
+        }else{
+                $MAST_mast[2]=~s/COMBINED.*=/with <b> non-significant e-value of /g;
+                $FuzzMEME = 1;
+        }
+        my $MEMEBlast = `perl blast.pl $Global_seq`;
+        if($FuzzMEME==1){
+                if($MEMEBlast>=0.6){
+                        $FuzzMEME=0;
+                        $MAST_mast[2].= "</b> and has local similarity of <b>".($MEMEBlast*100).'%</b> with one of the 192 unique-allergens';
+                }
+        }
+
+
+
+        ###
+        my $FuzzyOut = `perl fuzzyrule.pl $FuzzM $FuzzMEME $FuzzGADB $FuzzWHO $FuzzGHNA`;
+
+        if($FuzzyOut eq 'NA'){
+                $FuzzyOut = 'to be a "Non-Allergen"';
+                $FuzzyMarQ = '<font color = "green">"Non-Allergen"</font>';
+        }elsif($FuzzyOut eq 'MA'){
+                $FuzzyOut = '"Might be an Allergen"';
+                $FuzzyMarQ = '<font color = "orange">"Might be an Allergen"</font>';
+        }elsif($FuzzyOut eq 'A'){
+                $FuzzyOut = 'to be an "Allergen"';
+                $FuzzyMarQ = '<font color = "Red">"Allergen"</font>';
+        }else{
+                $FuzzyOut = 'to be a "Potent Allergen"';
+                $FuzzyMarQ = '<font color = "red">"Potent Allergen"</font>';
+        }
+        #####For HTML OUT
+        $HTML_ROUT.="<marquee behavior='alternate'><h2>$FASTA_Header[$i] is $FuzzyMarQ</b></h2></marquee><br>Since Machine learning module predcits the query to be <b> $ML_Result </b> and $GAS_FIN and $FWS_FIN and $GAPNS_FIN and motif module predicts the presence of allergen-motif of $MAST_mast[2] </b>,<br></b><table border='0' ><tr><td><b> the FuzzyAPP predicts the query protein $FASTA_Header[$i] <font color = 'blue'>$FuzzyOut</b></font></td></tr></table><hr>";
+        #####HTML OUT ENDS
+}
+#Query process ends here
+
+
+########File save process begins
+#        print "";
+        my $START_HTML = "<html><body bgcolor='#E6E6FA'><h1><center>FuzzyAPP - Fuzzylogic based Allergen Protein Predictor</center></h1><br><h4><center></h4><hr>";
+        my $END_HTML = "<hr><a href='http://fuzzyapp.bicpu.edu.in/predict.php'>Submit another job </a></body></html>";
+        open(TTT,">$Job_Id");
+        print TTT $START_HTML.$HTML_ROUT.$END_HTML;
+        close(TTT);
+        my $message = $START_HTML.$HTML_ROUT.$END_HTML;
+	print "\n\n Need not worry about the above warning messages!. If Job Finished Sucessfully, you will find the results in $Job_Id file ! \n\n "; 
+        #&Send_Mail($message,'brsaran@bicpu.edu.in',$Job_email);
+#######Ends!!!!!!
+        #print $START_HTML.$HTML_ROUT.$END_HTML;
+
+}else{
+        print "<b>Error: Maximum 10 sequences are allowed per job!!! or There is no sequnce or sequence not in supported format or Input has mixed sequence format which is not allowed!!!<b>";
+}#Main If loop
+
+#Random File name generator
+sub generate_random_string
+{
+        my $length_of_randomstring=shift;# the length of
+                 # the random string to generate
+
+        my @chars=('a'..'z','A'..'Z','0'..'9');
+        my $random_string;
+        foreach (1..$length_of_randomstring)
+        {
+                # rand @chars will generate a random
+                # number between 0 and scalar @chars
+                $random_string.=$chars[rand @chars];
+        }
+        return $random_string;
+}
+sub Send_Mail{
+my ($res_for_mail,$M_F, $M_T) = @_;
+
+$msg = MIME::Lite->new(
+                 From     => $M_F,
+                 To       => $M_T,
+                 Subject  =>"FuzzyApp result [job title:$Job_tit ]",
+                 Type     =>'text/html',
+                 Encoding =>'base64',
+                 Data => qq{ $res_for_mail }
+                 );
+$msg->send;
+}
