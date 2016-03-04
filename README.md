@@ -1,0 +1,2 @@
+# FuzzyApp
+FuzzyAPP a novel fuzzy rule based system for assessing the protein for allergenicity. It combines five different modules–Machine learning classifier (MLC), Motif search, Global similarity with allergen, FAO/WHO evaluation scheme, and Global similarity with allergen like putative non-allergen (APN)– to assess the protein allergenicity. Further, with the modules output as parameter, a fuzzy inference system with 108 fuzzy IF THEN rules were designed to assess the final quality of the protein. 
