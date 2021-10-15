@@ -16,7 +16,7 @@ CGI (not mandatory, without it may produce warnings!)
 CGI:Carp (not mandatory, without it may produce warnings!)
 MIME:Lite (Mandatory)
 
-Do install the FASTA36 and MEME and put the binaries in the FuzzyApp folder. The FuzzyApp comes with the precompiled binaries, in case those binaries are not executable (as it is compiled in Fedora21) kindly do install FASTA36 and MEME using the corresponding .gz file provided in the package and put the binaries in FuzzyApp/fasta36/bin for FASTA36 and FuzzyApp/meme/src for MEME.
+Do install the FASTA36 and MEME and put the binaries in the FuzzyApp folder. The FuzzyApp comes with the precompiled binaries, in case those binaries are not executable (as it is compiled in Fedora21) kindly do install FASTA36 and MEME using the corresponding .gz file provided in the package and put the binaries in FuzzyApp/fasta36/bin for FASTA36 and FuzzyApp/meme/src for MEME. The pre-compiled binaries were tested in Ubuntu 16.04, and found working fine.
 
 Extract the FuzzyApp package from github, give executable permission to FuzzyApp file and execute by following command
 
