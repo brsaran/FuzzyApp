@@ -240,10 +240,10 @@ for(my $i=1;$i<@Rawseq1;$i++){ #delete only this line
 
         if(($ZMEME < 0.0001) && ($ZMEME != 0)){
                 #$MAST_mast[2]=~s/COMBINED.*=/with <b> significant e-value of /g;
-		$MAST_mast[2] = "Motif ID <b>". $spa[1]."</b> with the significane e-value of <b>".$spa[5]."</b>"; 
+		$MAST_mast[2] = "Motif ID <b>". $spa[1]."</b> with the significant e-value of <b>".$spa[5]."</b>"; 
                 $FuzzMEME = 0;
         }elsif(($ZMEME > 0.001) && ($ZMEME != 0)){
-                $MAST_mast[2] = "Motif ID <b>". $spa[1]."</b> with the non-significane e-value of <b>".$spa[5]."</b>"; 
+                $MAST_mast[2] = "Motif ID <b>". $spa[1]."</b> with the non-significant e-value of <b>".$spa[5]."</b>"; 
                 $FuzzMEME = 1;
         }else{
 		$MAST_mast[2] = "<b>No Motif</b>";
