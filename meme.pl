@@ -29,14 +29,14 @@ close(TTT);
 #####Run MAST
 $trig = `pwd`.'/meme/src/mast';
 $trig=~s/\n//g;
-`$trig meme.txt $meme_out_path1 -oc $meme_out_path`;
-open(TTT,"$meme_out_path/mast.txt");
-my @MAST_OUT = <TTT>;
-my $M_O = join('',@MAST_OUT);
-$M_O=~s/\n/\@/g;
-$M_O =~m/\*\@\@\@test(.*)\*/g;
-$M_O= $1;
-$M_O=~s/\@/\n/g;
+$M_O = `$trig meme.txt $meme_out_path1 -oc $meme_out_path -hit_list`;
+#open(TTT,"$meme_out_path/mast.txt");
+#my @MAST_OUT = <TTT>;
+#my $M_O = join('',@MAST_OUT);
+#$M_O=~s/\n/\@/g;
+#$M_O =~m/\*\@\@\@test(.*)\*/g;
+#$M_O= $1;
+#$M_O=~s/\@/\n/g;
 print $M_O; 
 
 `rm -rf $meme_out_path`;
