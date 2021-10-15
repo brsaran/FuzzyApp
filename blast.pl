@@ -1,4 +1,4 @@
-#!/usr/bin/perl 
+#	!/usr/bin/perl 
 ######## FuzzyAPP #####################
 #        Developed by SARAVANAN VIJAYAKUMAR
 #         Centre for Bioinformatics, Pondicherry University
@@ -43,8 +43,10 @@ if($xtr!~/No hits found/gi){
     $xtr = $1;
     $xtr =~m/ (.*)\//g;
     $r = $1;
-    $Similarity = ($r/$Bp_Len);
-    return $Similarity;
+    if($Bp_Len != 0){
+	    $Similarity = ($r/$Bp_Len);
+	    return $Similarity;
+	}else{ return 0;}
 }else{
     return 0;
 }
