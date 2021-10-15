@@ -227,18 +227,28 @@ for(my $i=1;$i<@Rawseq1;$i++){ #delete only this line
         ####Unnecessary
         #$MAST_mast[2]=~s/^\s\s//g;
         #$MAST_mast[2]=~s/\s\s/\<\/td\>\<td\>/g;
-        $MAST_mast[2]=~s/LENGTH/Length/g;
+        #$MAST_mast[2]=~s/LENGTH/Length/g;
         ####Un ends
-        $MAST_Result =~m/E\-VALUE \=(.*)/g;
-        $ZMEME = $1;
-        $ZMEME=~s/\s//;
-        if($ZMEME=~m/e\-/g){
-                $MAST_mast[2]=~s/COMBINED.*=/with <b> significant e-value of /g;
+        #$MAST_Result =~m/E\-VALUE \=(.*)/g;
+        #$ZMEME = $1;
+	@spa = split(" ",$MAST_mast[2]);
+	$decimal_notation = sprintf("%.10g", $spa[5]);
+
+	$ZMEME = $decimal_notation;
+	if($spa[5]=~m/e\-/g){} else {$ZMEME=0;}
+        #$ZMEME=~s/\s//;
+
+        if(($ZMEME < 0.0001) && ($ZMEME != 0)){
+                #$MAST_mast[2]=~s/COMBINED.*=/with <b> significant e-value of /g;
+		$MAST_mast[2] = "Motif ID <b>". $spa[1]."</b> with the significane e-value of <b>".$spa[5]."</b>"; 
                 $FuzzMEME = 0;
-        }else{
-                $MAST_mast[2]=~s/COMBINED.*=/with <b> non-significant e-value of /g;
+        }elsif(($ZMEME > 0.001) && ($ZMEME != 0)){
+                $MAST_mast[2] = "Motif ID <b>". $spa[1]."</b> with the non-significane e-value of <b>".$spa[5]."</b>"; 
                 $FuzzMEME = 1;
-        }
+        }else{
+		$MAST_mast[2] = "<b>No Motif</b>";
+                $FuzzMEME = 1;
+	}
         my $MEMEBlast = `perl blast.pl $Global_seq`;
         if($FuzzMEME==1){
                 if($MEMEBlast>=0.6){
@@ -268,6 +278,8 @@ for(my $i=1;$i<@Rawseq1;$i++){ #delete only this line
         #####For HTML OUT
         $HTML_ROUT.="<marquee behavior='alternate'><h2>$FASTA_Header[$i] is $FuzzyMarQ</b></h2></marquee><br>Since Machine learning module predcits the query to be <b> $ML_Result </b> and $GAS_FIN and $FWS_FIN and $GAPNS_FIN and motif module predicts the presence of allergen-motif of $MAST_mast[2] </b>,<br></b><table border='0' ><tr><td><b> the FuzzyAPP predicts the query protein $FASTA_Header[$i] <font color = 'blue'>$FuzzyOut</b></font></td></tr></table><hr>";
         #####HTML OUT ENDS
+	print "\nSequence ".$i." Completed!\n";
+	$FuzzM=$FuzzMEME=$FuzzGADB=$FuzzWHO=$FuzzGHNA='';
 }
 #Query process ends here
 
@@ -280,7 +292,7 @@ for(my $i=1;$i<@Rawseq1;$i++){ #delete only this line
         print TTT $START_HTML.$HTML_ROUT.$END_HTML;
         close(TTT);
         my $message = $START_HTML.$HTML_ROUT.$END_HTML;
-	print "\n\n Need not worry about the above warning messages!. If Job Finished Sucessfully, you will find the results in $Job_Id file ! \n\n "; 
+	print "\n\n Need not worry about the above warning messages!, if any. If Job Finished Sucessfully, you will find the results in $Job_Id file ! \n\n "; 
         #&Send_Mail($message,'brsaran@bicpu.edu.in',$Job_email);
 #######Ends!!!!!!
         #print $START_HTML.$HTML_ROUT.$END_HTML;
