@@ -13,6 +13,13 @@ use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 use MIME::Lite; #To be installed
 use List::Util qw(first max min);
+
+#Enter BLAST EXECUTABLE Path below###########
+$path_to_blastp = ''; #Please enter the full path of your blsat executable here!
+
+if($path_to_blastp == ''){ print "\n BlastP executable path not set!"; exit;}
+
+
 # Sequence In from argument
 my $Seq_In = @ARGV[0];
 $Seq_In=~s/\s//g;
@@ -24,10 +31,10 @@ open(TTT,">$Xtreme_File");
 print TTT "\>query\n".$Seq_In;
 close(TTT);
 ####Ends!
-
+$Full_cmd = $path_to_blastp."blastp -db MEMESeq -query ".$Xtreme_File;
 ###BLAST 
-print &BLAST_SIMILARITY("blastp -db MEMESeq -query $Xtreme_File");
-unlink($Xtreme_File);
+print &BLAST_SIMILARITY("$Full_cmd");
+#unlink($Xtreme_File);
 ####Ends!
 
 ############Subroutine
