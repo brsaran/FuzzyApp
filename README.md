@@ -11,9 +11,7 @@ Prerequistie
 4. MEME
 
 Required perl modules <br>
-List::Util <br>
-CGI (not mandatory, without it may produce warnings!)<br>
-CGI:Carp (not mandatory, without it may produce warnings!)<br>
+List::Util (Mandatory)<br>
 MIME:Lite (Mandatory)<br>
 <br>
 Please set the path to blast standalone executable in the blast.pl ( variable $path_to_blastp) before executing the program. Failing so will produce unexpected or error result. <br>
@@ -23,7 +21,12 @@ Do install the FASTA36 and MEME and put the binaries in the FuzzyApp folder. The
 
 Extract the FuzzyApp package from github, give executable permission to FuzzyApp file and execute by following command
 
-./FuzzyApp
+./FuzzyApp inputfilename outputfilename <br>
+ex: ./FuzzyApp test.fasta mytestout <br>
+
+Note: The argument order should not be shuffled, first argument is for input file and second is for output file.
+
+
 
 The input and output options are interactive and self descriptive.
 
