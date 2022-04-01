@@ -15,6 +15,8 @@ use MIME::Lite; #To be installed
 use List::Util qw(first max min);
 # Sequence In from argument
 
+$PATH_EXE = "/home/user/Documents/Softwares/FuzzyApp-master/";
+
 my $Seq_In = @ARGV[0];
 $Seq_In=~s/\s//g;
 #print $Seq_In;
@@ -22,9 +24,9 @@ $Seq_In=~s/\s//g;
 
 
 #Path setting for FASTA36 and others in temp
-$Fpath = `pwd`.'/fasta36/bin/';
+$Fpath = $PATH_EXE.'fasta36/bin/';
 $Fpath=~s/\n//g;
-$Seqpath = `pwd`.'/';
+$Seqpath = $PATH_EXE;
 $Seqpath =~s/\n//g;
 #End!
 
@@ -56,6 +58,7 @@ my $HG_rand_file = $Seqpath.&generate_random_string(8);
 open(TTT,">$HG_rand_file");
 print TTT $G_Seq;
 close(TTT);
+
 $HG_result = &Execute_FASTA36($Fpath,$HG_rand_file,$Seqpath,'HNA.fasta');
 
 if($HG_result ne ''){
