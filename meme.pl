@@ -8,13 +8,14 @@
 
 ######Required Modules
 ####
+my $PATH_EXE = "/home/user/Documents/Softwares/FuzzyApp-master/";
 
 my $Seq_In = @ARGV[0];
 $Seq_In=~s/\s//g;
 #End !
 
 #Path setting for MEME_OUT and others in temp
-$meme_out_path = ''.&generate_random_string(8);
+$meme_out_path = $PATH_EXE.&generate_random_string(8);
 $meme_out_path1 = $meme_out_path.'/query';
 
 ##Create directory for memeout
@@ -27,9 +28,10 @@ close(TTT);
 
 ####End!
 #####Run MAST
-$trig = `pwd`.'/meme/src/mast';
+$trig = $PATH_EXE.'meme/src/mast';
+$trigmast = $PATH_EXE."meme.txt";
 $trig=~s/\n//g;
-$M_O = `$trig meme.txt $meme_out_path1 -oc $meme_out_path -hit_list`;
+$M_O = `$trig $trigmast $meme_out_path1 -oc $meme_out_path -hit_list`;
 #open(TTT,"$meme_out_path/mast.txt");
 #my @MAST_OUT = <TTT>;
 #my $M_O = join('',@MAST_OUT);
