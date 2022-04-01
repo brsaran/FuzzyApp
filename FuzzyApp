@@ -16,6 +16,9 @@ use MIME::Lite; #To be installed
 #########
 
 
+$PATH_EXE = "/home/user/Documents/Softwares/FuzzyApp-master/";
+
+
 ######### FASTA Parsing from CGI script
 #print "Enter File contating protein in FASTA format:";
 if(($ARGV[0] eq'') || $ARGV[1] eq ''){
@@ -122,7 +125,8 @@ for(my $i=1;$i<@Rawseq1;$i++){ #delete only this line
         $Global_seq = $Rawseq1[$i];
 
         ###Machine Learning Module
-        my $resu = `perl psm_aller.pl $Global_seq`;
+	my $PPATH = $PATH_EXE."psm_aller.pl";
+        my $resu = `perl $PPATH $Global_seq`;
         my @Res = split('\n',$resu);
         my $ML_Result_Class = substr($Res[137],27,1);
         my $ML_Result_Weight = substr($Res[137],34,4);
@@ -139,7 +143,8 @@ for(my $i=1;$i<@Rawseq1;$i++){ #delete only this line
         ###End!
 
         ####FASTA36 Module
-        $F36_Result = `perl fasta.pl $Global_seq`;
+	my $F36PATH = $PATH_EXE.'fasta.pl';
+        $F36_Result = `perl $F36PATH $Global_seq`;
 	$tBlas = $F36_Result;
         $tBlas=~s/\n/\t/g;
         @ArtBlas=split('\t',$tBlas);
@@ -230,8 +235,8 @@ for(my $i=1;$i<@Rawseq1;$i++){ #delete only this line
 
 
         #####MOTIF MODULE
-
-        my $MAST_Result = `perl meme.pl $Global_seq`;
+	my $MPATH = $PATH_EXE."meme.pl";
+        my $MAST_Result = `perl $MPATH $Global_seq`;
         my @MAST_mast = split("\n",$MAST_Result);
         ####Unnecessary
         #$MAST_mast[2]=~s/^\s\s//g;
@@ -258,7 +263,8 @@ for(my $i=1;$i<@Rawseq1;$i++){ #delete only this line
 		$MAST_mast[2] = "<b>No Motif</b>";
                 $FuzzMEME = 1;
 	}
-        my $MEMEBlast = `perl blast.pl $Global_seq`;
+	my $MEMEPATH = $PATH_EXE.'blast.pl';
+        my $MEMEBlast = `perl $MEMEPATH $Global_seq`;
         if($FuzzMEME==1){
                 if($MEMEBlast>=0.6){
                         $FuzzMEME=0;
@@ -269,7 +275,8 @@ for(my $i=1;$i<@Rawseq1;$i++){ #delete only this line
 
 
         ###
-        my $FuzzyOut = `perl fuzzyrule.pl $FuzzM $FuzzMEME $FuzzGADB $FuzzWHO $FuzzGHNA`;
+	my $FUPATH = $PATH_EXE."fuzzyrule.pl";
+        my $FuzzyOut = `perl $FUPATH $FuzzM $FuzzMEME $FuzzGADB $FuzzWHO $FuzzGHNA`;
 
         if($FuzzyOut eq 'NA'){
                 $FuzzyOut = 'to be a "Non-Allergen"';
@@ -301,7 +308,7 @@ for(my $i=1;$i<@Rawseq1;$i++){ #delete only this line
         print TTT $START_HTML.$HTML_ROUT.$END_HTML;
         close(TTT);
         my $message = $START_HTML.$HTML_ROUT.$END_HTML;
-	print "\n\n If Job Finished Sucessfully, you will find the results in $Job_Id file ! \n\n "; 
+	print "\n\n If Job Finished Sucessfully, you will find the results in $Job_Id file ! \n\n Note: If you had any error messages while running FuzzyApp, possibly it could be due to the improper setting of path and executables of blast, fasta, or meme. In such case the output generated may not be reliable. Please read the README file carefully."; 
         #&Send_Mail($message,'brsaran@bicpu.edu.in',$Job_email);
 #######Ends!!!!!!
         #print $START_HTML.$HTML_ROUT.$END_HTML;
