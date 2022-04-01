@@ -7,9 +7,10 @@
 #
 
 ######Required Modules
+my $PATH_EXE = "/home/user/Documents/Softwares/FuzzyApp-master/";
 
 use List::Util qw[max];
-
+my $PATHJAR = $PATH_EXE.'weka.jar';
 ##############Sequence Input via arguments
 $Sequence_In = @ARGV[0];
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~BINOM FEATURE Calc
@@ -25,7 +26,7 @@ print TTT $Arff;
 close(TTT);
 $Arff="";
 #####Adaboost Prediction
-my $Machine_res = &ML_Test('AN.model',$File_string);
+my $Machine_res = &ML_Test("$PATH_EXE/AN.model",$File_string);
 print $Machine_res;
 unlink($File_string);
 #######End!
@@ -215,7 +216,7 @@ sub Type_III{
 sub ML_Test{
 my($MODEL,$fil,$xsav)= @_;
     #my $result = `java -classpath weka.jar weka.classifiers.meta.AdaBoostM1 -T $fil -l $MODEL -p 0`;
-    my $result = `java -classpath $CLASSPATH:weka.jar weka.classifiers.meta.AdaBoostM1 -T $fil -l $MODEL -p 0`;
+    my $result = `java -classpath $PATHJAR weka.classifiers.meta.AdaBoostM1 -T $fil -l $MODEL -p 0`;
     #$result=~s/ //g;
     #my @Cont = split('\n',$result);
     return $result;
