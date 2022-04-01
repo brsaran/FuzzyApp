@@ -9,8 +9,8 @@
 ######Required Modules
 
 use List::Util qw[max];
-use CGI qw(:standard);
-use CGI::Carp qw(fatalsToBrowser);
+#use CGI qw(:standard);
+#use CGI::Carp qw(fatalsToBrowser);
 use MIME::Lite; #To be installed
 use List::Util qw(first max min);
 # Sequence In from argument
