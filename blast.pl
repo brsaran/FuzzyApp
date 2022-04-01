@@ -16,6 +16,9 @@ use List::Util qw(first max min);
 
 #Enter BLAST EXECUTABLE Path below###########
 $path_to_blastp = ''; #Please enter the full path of your blsat executable here!
+$PATH_EXE = "/home/user/Documents/Softwares/FuzzyApp-master/";
+
+
 
 if($path_to_blastp == ''){ print "\n BlastP executable path not set!"; exit;}
 
@@ -26,12 +29,12 @@ $Seq_In=~s/\s//g;
 ###Ends!
 ###File generation
 
-$Xtreme_File = ''.&generate_random_string(8);
+$Xtreme_File = $PATH_EXE.&generate_random_string(8);
 open(TTT,">$Xtreme_File");
 print TTT "\>query\n".$Seq_In;
 close(TTT);
 ####Ends!
-$Full_cmd = $path_to_blastp."blastp -db MEMESeq -query ".$Xtreme_File;
+$Full_cmd = $path_to_blastp."blastp -db ".$PATH_EXE."MEMESeq -query ".$Xtreme_File;
 ###BLAST 
 print &BLAST_SIMILARITY("$Full_cmd");
 #unlink($Xtreme_File);
