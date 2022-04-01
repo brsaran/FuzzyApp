@@ -9,16 +9,23 @@
 ######Required Modules
 
 use List::Util qw[max];
-use CGI qw(:standard);
-use CGI::Carp qw(fatalsToBrowser);
+#use CGI qw(:standard);
+#use CGI::Carp qw(fatalsToBrowser);
 use MIME::Lite; #To be installed
-use WWW::Mechanize;
+#use WWW::Mechanize;
 #########
 
 
 ######### FASTA Parsing from CGI script
-print "Enter File contating protein in FASTA format:";
-chomp($infil = <STDIN>);
+#print "Enter File contating protein in FASTA format:";
+if(($ARGV[0] eq'') || $ARGV[1] eq ''){
+	print "\n Input and output filenames are required! ex: ./FuzzyApp Infilename Outfilename";
+	exit();
+}
+
+$infil = $ARGV[0];
+
+#chomp($infil = <STDIN>);
 	open (FIL,"$infil");
 	@new_tem = <FIL>;
 	$Rawseq[0] = join("",@new_tem);
@@ -98,8 +105,10 @@ if ($Seq_OK != 1){
 #my $Job_Id_path = '';
 #my $Job_FILE = &generate_random_string(8).&generate_random_string(8);
 #my $Job_Id = $Job_Id_path.$Job_FILE.'.fuzz';
-print "Enter Filename for output to be saved:";
-chomp($Job_Id = <STDIN>);
+#print "Enter Filename for output to be saved:";
+#chomp($Job_Id = <STDIN>);
+$Job_Id = $ARGV[1];
+$Job_Id=~s/\s//g;
 $Job_Id.='.html';
 
 #my $Job_content = "<html><h3>Processing....Please wait</h3><br>If the page did not refresh automatically ". "<a href = '/temp/".$Job_FILE."\.fuzz'> click here</a><br>Your job results will be available in the server,  your Job ID is <b>".$Job_FILE."</b><br><br><b>Note: All the job results will be cleaned by the server every day at 00:00:00 IST";
